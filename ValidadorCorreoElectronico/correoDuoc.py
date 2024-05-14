@@ -6,9 +6,9 @@ al recibir un correo electronico debe validar lo siguiente:
 3. Entregar nombre de usuario y dominio por separado
 
 Ejemplo:
-s.campos@profesor.duoc.cl
-Nombre de usuario: s.campos
-Dominio: duoc.cl
+correo@profesor.cl
+Nombre de usuario: correo
+Dominio: profesor.cl
 El correo tiene dominio .cl
 """
 
