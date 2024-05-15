@@ -49,5 +49,5 @@ while ingresarDatos:
             # Validar si la nota es mayor o igual a 4
             if nota >= 4:
                 aprobados += 1
-            else:
+            elif nota < 4:
                 reprobados += 1
