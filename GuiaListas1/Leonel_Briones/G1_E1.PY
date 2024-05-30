@@ -14,13 +14,17 @@ CANT_INGRESOS = 3
 lista = []
 
 # Recorrer la cantidad de ingresos
-for i in range(CANT_INGRESOS):
-    try:
-        captura = int(input("Ingrese un número: "))
-    except:
-        pass
+for i in range(1, CANT_INGRESOS + 1):
+    # Validar que se ingrese un número
+    while True:
+        try:
+            captura = int(input(f"[+] Ingrese número {i}/{CANT_INGRESOS}: "))
+            break
+        except:
+            print("[!] ERROR: Debe ingresar un número")
+            
     # Agregar a la lista
     lista.append(captura)
 
 # Mostrar lista
-print(lista)
+print(f"La lista con los números es: {lista}")
