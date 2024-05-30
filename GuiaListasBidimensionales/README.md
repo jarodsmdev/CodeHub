@@ -1,14 +1,12 @@
 # Guía 3 - Listas bidimensionales
 ---
 
-Nota: Recuerde que en los ejemplos, las palabras en negrita son reflejo de datos ingresados por
-teclado.
+Nota: Recuerde que en los ejemplos, las palabras en negrita son reflejo de datos ingresados por teclado.
 
 ## Ejercicio 1
 
 Haga un programa que reciba datos de 3 personas ingresados por teclado. Los datos
-deben ser: Nombre, apellido y edad.Los datos deben ser guardados en una lista
-bidimensional.. Muestre el resultado por pantalla.
+deben ser: Nombre, apellido y edad.Los datos deben ser guardados en una lista bidimensional. Muestre el resultado por pantalla.
 
 Ejemplo:
 
