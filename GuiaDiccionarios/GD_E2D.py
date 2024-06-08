@@ -1,5 +1,5 @@
 """
-Ejercicio 2C:
+Ejercicio 2D:
 Trabajaremos con un diccionario que tiene como llaves poderes, y como valores listas de nombres de superhéroes.
 
 A. Agregar Superhéroe a Poder
@@ -13,6 +13,10 @@ Haga un programa que permita ingresar por teclado un superhéroe y elimine ese s
 C. Consultar Superhéroes por Poderes
 
 Haga un programa que permita ingresar por teclado 2 poderes y entregue una lista con todos los superhéroes que tienen al menos uno de esos poderes. Los nombres en la lista no deben repetirse.
+
+D. Consultar Superhéroes por Poderes Combinados
+
+Haga un programa que permita ingresar por teclado 2 poderes y entregue una lista con los superhéroes que tienen ambos poderes. Si no hay superhéroe que tenga ambos poderes, debe entregar un mensaje que diga: “No existe superhéroe que tenga esos poderes”.
 """
 
 # Función que verifica si el poder (key) existe en el diccionario
@@ -77,17 +81,10 @@ def agregarSuperheroe():
         poderes[poder] = [superHeroe]
         print(f"[!] Poder: {poder}, Superhéroe: {superHeroe} agregado correctamente!")
 
-def filtrarPorPoderes(diccionario):
-    # Constante para el filtro de superhéroes
-    MAX_FILTRO_PODER = 2
-    
-    # Variables para el filtro
+def solicitarPoderes(cantidadPoderes, diccionario):
     listaPoderes = []
-    listaSuperheroes = []
     contador = 0
-
-    # Pedir 2 poderes para realizar el filtro de superhéroes, sin repetir
-    while contador < MAX_FILTRO_PODER:
+    while contador < cantidadPoderes:
         # Solicitar poder al usuario
         poder = input(f"[+] Ingrese poder {contador + 1} a filtrar: ").capitalize()
         
@@ -98,13 +95,25 @@ def filtrarPorPoderes(diccionario):
             # Verificar si el poder ya se encuentra en la lista de poderes (evitar repetidos)
             if poder in listaPoderes:
                 print("[!] Poder ya se encuentra seleccionado")
-                print(listaPoderes)
             else:
                 # Agregar poder a la lista de poderes
                 contador += 1
                 listaPoderes.append(poder)
-    # FIN WHILE
+        # FIN WHILE
+    return listaPoderes
 
+def filtrarPorPoderes(diccionario):
+    # Constante para el filtro de superhéroes
+    MAX_FILTRO_PODER = 2
+    
+    # Variables para el filtro
+    listaPoderes = []
+    listaSuperheroes = []
+
+
+    # Pedir 2 poderes para realizar el filtro de superhéroes, sin repetir
+    listaPoderes = solicitarPoderes(MAX_FILTRO_PODER, diccionario)
+    
     # Se crea un conjunto vacío, el cual recibirá los superhéroes filtrados
     # Se utiliza un conjunto para evitar duplicados, ya que por definición no permite elementos repetidos
     filtro = set()
@@ -120,6 +129,27 @@ def filtrarPorPoderes(diccionario):
     # Retornar lista de superhéroes filtrados
     return listaSuperheroes
 
+# Función que filtra superhéroes por poderes combinados
+def filtrarPorPoderesCombinados(diccionario):
+    
+    # Constante para el filtro de superhéroes
+    # Llama a la función solicitarPoderes para obtener los poderes a filtrar
+    PODERES = solicitarPoderes(2, diccionario)
+    
+    # Se crea un conjunto vacío, el cual recibirá los superhéroes filtrados
+    interseccion = set()
+    
+    # Recorro los poderes sólo hasta la penúltima posición ya que se compara con el siguiente poder
+    # Si el superhéroe tiene ambos poderes, se agrega al conjunto intersección
+    for i in range(len(PODERES) - 1):
+        interseccion = set(diccionario[PODERES[i]]).intersection(set(diccionario[PODERES[i + 1]]))
+    
+    # Si no hay superhéroes con ambos poderes, se imprime un mensaje
+    if (len(interseccion)) == 0:
+        print("[!] No existe superhéroe que tenga esos poderes")
+    else:
+        print(interseccion)
+
 # Diccionario con los poderes y superhéroes
 poderes = {
     "Volar": ["Superman", "Mujer maravilla", "Ironman"],
@@ -133,7 +163,8 @@ MENU = """
 1. Agregar Superhéroe a Poder
 2. Eliminar Superhéroe
 3. Consultar Superhéroes por Poderes
-4. Mostrar diccionario
+4. Consultar Superhéroes por Poderes Combinados
+5. Mostrar diccionario
 0. Salir
 """
 
@@ -154,6 +185,9 @@ while True:
             print("--- CONSULTAR SUPERHEROES ---\n")
             print(filtrarPorPoderes(poderes))
         elif opcion == 4:
+            print("--- CONSULTAR PODERES COMBINADOS ---\n")
+            filtrarPorPoderesCombinados(poderes)
+        elif opcion == 5:
             print("--- MOSTRAR SUPERHÉROES ---\n")
             mostrarDiccionario(poderes)
         elif opcion == 0:
