@@ -75,7 +75,8 @@ Haga un programa que permita ingresar un número entero positivo. Dado este núm
 
 Considere que la fórmula de la desviación estándar es:
 
-\[ \sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (X_i - \bar{X})^2} \]
+\[ s = \sqrt{\frac{\sum_{i}^{n} (x_i - \bar{x})^2}{n}} \]
+
 
 donde \( N \) es la cantidad de números, \( X_i \) es el número \( i \)-ésimo y \( \bar{X} \) es el promedio.
 
