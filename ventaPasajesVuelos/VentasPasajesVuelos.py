@@ -6,6 +6,11 @@ def signal_handler(sig: int, frame: signal):
     print("\n[!] Saliendo del programa...")
     sys.exit(0)
     
+def crearTitulo(titulo: str) -> str:
+    longitud = len(titulo)
+    linea = "=" * (longitud + 4)  # Se suman 4 para los espacios antes y después del título
+    return f"\t{linea}\n\t  {titulo}  \n\t{linea}"
+    
 def calcularDescuentoBanco(banco, precio):
     if banco in CONVENIOS_BANCO:
         precioRebajado = precio * CONVENIOS_BANCO[banco]
@@ -29,26 +34,44 @@ def mostrarMenu(menu: str, lista_asientos: list, asientoVip: int):
         print(MENU)
         choice = input("[+] Seleccione una opción: ")
         if choice == "1":
-            print("""\t================\n\tVER ASIENTOS DISPONIBLES\n\t================""")
+            print(crearTitulo("ASIENTOS DISPONIBLES"))
             mostrarAsientos(lista_asientos, ASIENTO_VIP)
         elif choice == "2":
-            print("""\t================\n\tCOMPRAR ASIENTO\n\t================""")
+            print(crearAsientos("COMPRAR ASIENTO"))
             diccPasajeros, asiento, banco = solicitarInformacionPasajero(diccPasajeros)
             #print(diccPasajeros)
             precio = calcularValorAsiento(asiento, ASIENTO_VIP, VALORES_ASIENTOS)
             calcularDescuentoBanco(banco, precio)
             ocuparAsiento(asiento, lista_asientos)
         elif choice == "3":
-            print("""\t================\n\tANULAR VUELO\n\t================""")
+            print(crearTitulo("ANULAR VUELO"))
+            asiento = ingresarAsiento()
+            if not asientoDisponible(asiento, diccPasajeros):
+                rut = ingresarRut()
+                if borrarDatosCompra(rut, diccPasajeros):
+                    liberarAsiento(asiento, lista_asientos)
+                    print(f"[+] Asiento {asiento} anulado")
+                else:
+                    print("[!] ERROR: El RUT ingresado no corresponde a un pasajero")
+            else:
+                print(f"[!] ERROR: El asiento {asiento} no se puede anular")
         elif choice == "4":
-            print("""\t================\n\tMODIFICAR DATOS DE PASAJERO\n\t================""")
+            print(crearTitulo("MODIFICAR DATOS DE PASAJERO"))
         elif choice == "5":
-            print("""\t================\n\tSALIR\n\t================""")
+            print(crearTitulo("SALIR"))
             print("[+] Saliendo del programa...")
             isRunning = False
+        else:
+            print("[!] Opción no válida, intente nuevamente")
+
+def borrarDatosCompra(rut: str, diccPasajeros: dict) -> bool:
+    if rut in diccPasajeros:
+        del diccPasajeros[rut]
+        return True
+    else:
+        return False
 
 def ocuparAsiento(asiento: int, listaAsientos: list):
-    #print(lista_asientos)
     for fila in range(len(listaAsientos)):
         for columna in range(len(listaAsientos[fila])):
             posicion = (len(listaAsientos[fila]) * fila) + columna + 1
@@ -57,8 +80,13 @@ def ocuparAsiento(asiento: int, listaAsientos: list):
                     listaAsientos[fila][columna] = "X"
                 else:
                     listaAsientos[fila][columna] = "X "
-    #print(lista_asientos)
-    
+
+def liberarAsiento(asiento: int, listaAsientos: list):
+    for fila in range(len(listaAsientos)):
+        for columna in range(len(listaAsientos[fila])):
+            posicion = (len(listaAsientos[fila]) * fila) + columna + 1
+            if posicion == asiento:
+                listaAsientos[fila][columna] = asiento
 
 def crearAsientos(nFilas: int, nColumnas: int) -> list:
     """
@@ -158,35 +186,16 @@ def cantidadMaximaAsientos(filas: int, columnas: int) -> int:
     """
     return filas * columnas
 
-def asientoDisponible(asiento: int, diccPasajeros: dict) -> bool:
-    """
-    Función que verifica si un asiento está disponible
-    
-    Args:
-        asiento (int): Número de asiento a verificar
-        
-    Returns:
-        bool: True si el asiento está disponible, False si no lo está
-    """
+def existeAsiento(asiento: int) -> bool:
     
     if asiento < 1 or asiento > cantidadMaximaAsientos(FILAS, COLUMNAS):
         print("[!] El asiento seleccionado no existe")
         return False
     else:
-        if not comprobarAsientoOcupado(asiento, diccPasajeros):
-            return True
-        return False
+        return True
     
 def esValorNumerico(valor: str) -> bool:
-    """
-    Función que verifica si un valor es numérico
-    
-    Args:
-        valor (str): Valor a verificar
-        
-    Returns:
-        bool: True si el valor es numérico, False si no lo es
-    """
+
     try:
         valor = int(valor)
         return True
@@ -198,36 +207,31 @@ def clienteComproPasajes(rut: str, diccPasajeros: dict) -> bool:
         return True
     return False
 
-def ingresarRut(diccPasajeros: dict):
+def ingresarRut():
     while True:
         rut = input("[+] Ingrese su RUT: ").replace("-","").replace(".","").replace(" ", "").upper()
         if len(rut) == 0:
             print("[!] ERROR: El RUT no puede estar vacío")
         else:
-            if clienteComproPasajes(rut, diccPasajeros):
-                print("[!] Usted ya ha comprado un pasaje")
-            else:
-                break
+            break
     return rut
     # Fin While
     
-def ingresarAsiento(diccPasajeros: dict) -> int:
+def ingresarAsiento() -> int:
     while True:
         asiento = input("[+] Ingrese el número de asiento: ")
         if esValorNumerico(asiento):
             asiento = int(asiento)
-            if asientoDisponible(asiento, diccPasajeros):
-                break
+            break
         else:
             print("[!] El número de asiento debe ser numérico")
     return asiento
 
-def comprobarAsientoOcupado(asiento: int, diccPasajeros: dict) -> bool:
+def asientoDisponible(asiento: int, diccPasajeros: dict) -> bool:
     for rut, datos in diccPasajeros.items():
         if datos["asiento"] == asiento:
-            print(f"[!] El asiento {asiento} está ocupado, seleccione otro asiento")
-            return True
-    return False
+            return False
+    return True
 
 def solicitarInformacionPasajero(diccPasajeros)-> tuple:
     """
@@ -236,17 +240,20 @@ def solicitarInformacionPasajero(diccPasajeros)-> tuple:
     Returns:
         tuple: Tupla con el diccionario de pasajeros actualizado, el número de asiento y el banco
     """
-    
-    rut = ingresarRut(diccPasajeros)
+    while True:
+        rut = ingresarRut()
+        if clienteComproPasajes(rut, diccPasajeros):
+            print("[!] Usted ya ha comprado un pasaje")
+        else:
+            break
     nombre = input("[+] Ingrese su nombre: ").capitalize()
     apellido = input("[+] Ingrese su apellido: ").capitalize()
     telefono = input("[+] Ingrese su teléfono: ")
     banco = input("[+] Ingrese el nombre de su banco: ").upper()
     
-    asiento = ingresarAsiento(diccPasajeros)
-    
     while True:
-        if asientoDisponible(asiento, diccPasajeros):
+        asiento = ingresarAsiento()
+        if existeAsiento(asiento) and asientoDisponible(asiento, diccPasajeros):
             diccPasajeros[rut] = {
                 "nombre": nombre,
                 "apellido": apellido,
