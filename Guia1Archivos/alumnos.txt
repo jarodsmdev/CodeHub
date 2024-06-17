@@ -1,0 +1,5 @@
+Esteban:Gutierrez:4.9:1.8:3.2
+Luisa:Miranda:6.8:4.4:5.6
+Jean Paul:Munoz:4.8:3.8:2.1
+Gianfranco:Basso:5.4:5.4:5.0
+Romina:Smith:1.0:2.8:5.9
