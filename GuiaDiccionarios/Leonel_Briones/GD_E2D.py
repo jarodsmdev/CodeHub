@@ -20,21 +20,21 @@ Haga un programa que permita ingresar por teclado 2 poderes y entregue una lista
 """
 
 # Función que verifica si el poder (key) existe en el diccionario
-def existePoder(poder, diccionario):
+def existePoder(poder: str, diccionario: dict) -> bool:
     if poder in diccionario:
         return True
     else:
         return False
 
 # Función que verifica si el superhéroe existe en la lista de un poder(key)
-def existeSuperheroe(superheroe, diccionario, poder):
+def existeSuperheroe(superheroe: str, diccionario: dict, poder) -> bool:
     for nombre in diccionario[poder]:
         if nombre == superheroe:
             return True
     return False
 
 # Función que elimina un superhéroe de todo el diccionario
-def eliminarSuperheroe(superheroe, diccionario):
+def eliminarSuperheroe(superheroe: str, diccionario: dict):
     eliminado = False
     contador = 0
     for poder in diccionario:
@@ -50,7 +50,7 @@ def eliminarSuperheroe(superheroe, diccionario):
     
 
 # Función que valida si un número es entero
-def validarNumeroEntero(numero):
+def validarNumeroEntero(numero: any) -> bool:
     try:
         numero = int(numero)
         return True
@@ -58,7 +58,7 @@ def validarNumeroEntero(numero):
         return False
     
 # Muestra por terminal diccionario sin formato
-def mostrarDiccionario(diccionario):
+def mostrarDiccionario(diccionario: dict):
     print(diccionario)
 
 # Función que agrega un superhéroe a un poder (key) del diccionario
@@ -81,7 +81,7 @@ def agregarSuperheroe():
         poderes[poder] = [superHeroe]
         print(f"[!] Poder: {poder}, Superhéroe: {superHeroe} agregado correctamente!")
 
-def solicitarPoderes(cantidadPoderes, diccionario):
+def solicitarPoderes(cantidadPoderes: int, diccionario: dict) -> list:
     listaPoderes = []
     contador = 0
     while contador < cantidadPoderes:
@@ -102,7 +102,7 @@ def solicitarPoderes(cantidadPoderes, diccionario):
         # FIN WHILE
     return listaPoderes
 
-def filtrarPorPoderes(diccionario):
+def filtrarPorPoderes(diccionario: dict) -> list:
     # Constante para el filtro de superhéroes
     MAX_FILTRO_PODER = 2
     
@@ -130,7 +130,7 @@ def filtrarPorPoderes(diccionario):
     return listaSuperheroes
 
 # Función que filtra superhéroes por poderes combinados
-def filtrarPorPoderesCombinados(diccionario):
+def filtrarPorPoderesCombinados(diccionario: dict):
     
     # Constante para el filtro de superhéroes
     # Llama a la función solicitarPoderes para obtener los poderes a filtrar
@@ -148,7 +148,7 @@ def filtrarPorPoderesCombinados(diccionario):
     if (len(interseccion)) == 0:
         print("[!] No existe superhéroe que tenga esos poderes")
     else:
-        print(interseccion)
+        print(list(interseccion))
 
 # Diccionario con los poderes y superhéroes
 poderes = {

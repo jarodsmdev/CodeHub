@@ -3,7 +3,7 @@ Ejercicio 1A
 Haga un programa que permita escribir por teclado un equipo (Chile o Argentina), un número de camiseta y entregue el nombre del jugador. Considere el caso en el cual el número entregado por teclado no exista.
 """
 
-def validarEntero(numero):
+def validarEntero(numero: str | int | float) -> bool:
     esNumero = False
     try:
         numero = int(numero)
@@ -12,10 +12,10 @@ def validarEntero(numero):
         pass
     return esNumero
 
-def ingresarData(mensaje):
+def ingresarData(mensaje: str):
     return input(mensaje)
 
-def seleccionarEquipo(opcion):
+def seleccionarEquipo(opcion: str, Chile: dict, Argentina: dict) -> dict | None:
     if opcion == "chile":
         return Chile
 
@@ -25,7 +25,7 @@ def seleccionarEquipo(opcion):
     else:
         return None
 
-def buscarJugador(diccionario):
+def buscarJugador(diccionario: dict):
     num = ingresarData("[+] Ingrese un numero de camiseta: ")
     
     if not validarEntero(num):
@@ -72,8 +72,8 @@ Argentina = {
 equipo = ingresarData("[+] Escriba un país: ").lower()
 
 # Asignación del diccionario en base a la selección del usuario
-if seleccionarEquipo(equipo) != None:
-    diccionario = seleccionarEquipo(equipo)
+if seleccionarEquipo(equipo, Chile, Argentina) != None:
+    diccionario = seleccionarEquipo(equipo, Chile, Argentina)
     buscarJugador(diccionario)
 else:
     print("[!] ERROR: No ha seleccionado un equipo válido (Chile o Argentina)")
