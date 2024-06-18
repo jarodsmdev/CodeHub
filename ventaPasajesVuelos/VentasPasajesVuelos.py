@@ -37,7 +37,7 @@ def mostrarMenu(menu: str, lista_asientos: list, asientoVip: int):
             print(crearTitulo("ASIENTOS DISPONIBLES"))
             mostrarAsientos(lista_asientos, ASIENTO_VIP)
         elif choice == "2":
-            print(crearAsientos("COMPRAR ASIENTO"))
+            print(crearTitulo("COMPRAR ASIENTO"))
             diccPasajeros, asiento, banco = solicitarInformacionPasajero(diccPasajeros)
             #print(diccPasajeros)
             precio = calcularValorAsiento(asiento, ASIENTO_VIP, VALORES_ASIENTOS)
