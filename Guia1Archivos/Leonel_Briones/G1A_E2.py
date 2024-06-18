@@ -24,13 +24,14 @@ print(productos)
 totalCompra = 0
 
 while True:
-    producto = input("[+] Ingrese producto: ").title()
+    producto = input("[+] Ingrese producto: ")
     
-    if producto.upper() == "FIN":
+    if producto == "FIN":
         break
     else:
+        producto = producto.title()
         precio = obtenerPrecio(producto, productos)
         if precio != 0:
             print(f"[>] {producto} : {precio}")
             totalCompra += precio
-print(f"Total de la compra: ${totalCompra}").M
+print(f"Total de la compra: ${totalCompra}")
