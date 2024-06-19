@@ -90,12 +90,30 @@ def leerArchivo(archivo_txt:str) -> list:
 
     return listaContenedor
 
+def palabraMasExtensa(palabras: list) -> str:
+    """
+    Funcion que recibe una lista y retorna la palabra mas larga
+    
+    Args:
+        palabras (list): lista de palabras
+        
+    Returns:
+        str: palabra mas larga
+    """
+    palabraLarga = ""
+    for lista in palabras:
+        for palabra in lista:
+            if len(palabra) > len(palabraLarga):
+                palabraLarga = palabra
+    return palabraLarga 
+
 def main():
     data = leerArchivo("quijote.txt")
     if len(data) != 0:
         print("Cantidad de lineas:", cantidadLineas(data))
         print("Cantidad de palabras:", cantidadPalabras(data))
         print("Cantidad de letras:", cantidadLetras(data))
+        print("Palabra más larga:", palabraMasExtensa(data))
         print("Palabras que comiencen con una vocal:", palabrasConVocal(data))
         
 ### MAIN ###
