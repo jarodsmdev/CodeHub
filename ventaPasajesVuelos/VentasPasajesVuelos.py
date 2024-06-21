@@ -3,18 +3,41 @@ import signal
 import sys
 
 def signal_handler(sig: int, frame: signal):
+    """
+    Función que maneja la señal de interrupción del teclado (Ctrl+C)
+    
+    Args:
+        sig (int): Señal de interrupción
+        frame (signal): Señal de interrupción del teclado
+    """
     print("\n[!] Saliendo del programa...")
     sys.exit(0)
     
 def crearTitulo(titulo: str) -> str:
+    """
+    Función que crea un título con un texto centrado y con un borde de "="
+    
+    Args:
+        titulo (str): Texto del título
+        
+    Returns:
+        str: Título con borde de "="
+    """
     longitud = len(titulo)
     linea = "=" * (longitud + 4)  # Se suman 4 para los espacios antes y después del título
     return f"\t{linea}\n\t  {titulo}  \n\t{linea}"
     
-def calcularDescuentoBanco(banco, precio):
+def calcularDescuentoBanco(banco: str, precio: int):
+    """
+    Función que calcula el descuento de un banco en el precio de un asiento
+    
+    Args:
+        banco (str): Nombre del banco del cliente
+        precio (int): Precio del asiento
+    """
     if banco in CONVENIOS_BANCO:
         precioRebajado = precio * CONVENIOS_BANCO[banco]
-        print(f"[!] Su banco tiene oferta de un 15% de descuento\n[!] El valor del asiento es: {precio}\n[!] Precio con descuento es: ${round(precioRebajado)}")
+        print(f"[!] Su banco tiene oferta de un 15% de descuento\n[!] El valor del asiento es: ${precio}\n[!] Precio con descuento es: ${round(precioRebajado)}")
     else:
         print(f"[+] El valor del asiento es: ${precio}")
 
@@ -57,6 +80,7 @@ def mostrarMenu(menu: str, lista_asientos: list, asientoVip: int):
                 print(f"[!] ERROR: El asiento {asiento} no se puede anular")
         elif choice == "4":
             print(crearTitulo("MODIFICAR DATOS DE PASAJERO"))
+            modificarDatosPasajeros(lista_asientos, diccPasajeros)
         elif choice == "5":
             print(crearTitulo("SALIR"))
             print("[+] Saliendo del programa...")
@@ -64,7 +88,31 @@ def mostrarMenu(menu: str, lista_asientos: list, asientoVip: int):
         else:
             print("[!] Opción no válida, intente nuevamente")
 
+def modificarDatosPasajeros(listaAsientos: list, diccPasajeros: dict):
+    rut = ingresarRut()
+    asiento = ingresarAsiento()
+    
+    if clienteComproPasajes(rut, diccPasajeros):
+        # Verificar si el cliente ya compró un pasaje y coincide con el asiento
+        if diccPasajeros[rut]["asiento"] == asiento:
+            print("[+] Modificar datos del pasajero")
+            solicitarInformacionPasajero(diccPasajeros, rut, asiento)
+        else:
+            print("[!] ERROR: El RUT no coincide con el asiento")
+    else:
+        print("[!] ERROR: El cliente no ha comprado un pasaje")
+
 def borrarDatosCompra(rut: str, diccPasajeros: dict) -> bool:
+    """
+    Función que borra los datos de un pasajero de un diccionario
+    
+    Args:
+        rut (str): RUT del pasajero a borrar
+        diccPasajeros (dict): Diccionario con los datos de los pasajeros
+    
+    Returns:
+        bool: True si se borra el pasajero, False si no se encuentra en el diccionario
+    """
     if rut in diccPasajeros:
         del diccPasajeros[rut]
         return True
@@ -72,6 +120,13 @@ def borrarDatosCompra(rut: str, diccPasajeros: dict) -> bool:
         return False
 
 def ocuparAsiento(asiento: int, listaAsientos: list):
+    """
+    Función que ocupa un asiento en la matriz de asientos
+    
+    Args:
+        asiento (int): Número de asiento a ocupar
+        listaAsientos (list): Matriz de asientos del avión
+    """
     for fila in range(len(listaAsientos)):
         for columna in range(len(listaAsientos[fila])):
             posicion = (len(listaAsientos[fila]) * fila) + columna + 1
@@ -82,6 +137,13 @@ def ocuparAsiento(asiento: int, listaAsientos: list):
                     listaAsientos[fila][columna] = "X "
 
 def liberarAsiento(asiento: int, listaAsientos: list):
+    """
+    Función que libera un asiento en la matriz de asientos
+    
+    Args:
+        asiento (int): Número de asiento a liberar
+        listaAsientos (list): Matriz de asientos del avión
+    """
     for fila in range(len(listaAsientos)):
         for columna in range(len(listaAsientos[fila])):
             posicion = (len(listaAsientos[fila]) * fila) + columna + 1
@@ -187,7 +249,15 @@ def cantidadMaximaAsientos(filas: int, columnas: int) -> int:
     return filas * columnas
 
 def existeAsiento(asiento: int) -> bool:
+    """
+    Función que verifica si un asiento existe en el avión
     
+    Args:
+        asiento (int): Número de asiento a verificar
+        
+    Returns:
+        bool: True si el asiento existe, False si no existe
+    """
     if asiento < 1 or asiento > cantidadMaximaAsientos(FILAS, COLUMNAS):
         print("[!] El asiento seleccionado no existe")
         return False
@@ -195,7 +265,15 @@ def existeAsiento(asiento: int) -> bool:
         return True
     
 def esValorNumerico(valor: str) -> bool:
-
+    """
+    Función que verifica si un valor es numérico
+    
+    Args:
+        valor (str): Valor a verificar
+        
+    Returns:
+        bool: True si el valor es numérico, False si no es numérico
+    """
     try:
         valor = int(valor)
         return True
@@ -203,11 +281,27 @@ def esValorNumerico(valor: str) -> bool:
         return False
     
 def clienteComproPasajes(rut: str, diccPasajeros: dict) -> bool:
+    """
+    Función que verifica si un cliente ya compró un pasaje
+    
+    Args:
+        rut (str): RUT del cliente a verificar
+        diccPasajeros (dict): Diccionario con los datos de los pasajeros
+    
+    Returns:
+        bool: True si el cliente ya compró un pasaje, False si no ha comprado
+    """
     if rut in diccPasajeros:
         return True
     return False
 
-def ingresarRut():
+def ingresarRut() -> str:
+    """
+    Función que solicita al usuario su RUT
+    
+    Returns:
+        str: RUT ingresado por el usuario
+    """
     while True:
         rut = input("[+] Ingrese su RUT: ").replace("-","").replace(".","").replace(" ", "").upper()
         if len(rut) == 0:
@@ -218,6 +312,12 @@ def ingresarRut():
     # Fin While
     
 def ingresarAsiento() -> int:
+    """
+    Función que solicita al usuario el número de asiento
+    
+    Returns:
+        int: Número de asiento ingresado por el usuario
+    """
     while True:
         asiento = input("[+] Ingrese el número de asiento: ")
         if esValorNumerico(asiento):
@@ -228,12 +328,22 @@ def ingresarAsiento() -> int:
     return asiento
 
 def asientoDisponible(asiento: int, diccPasajeros: dict) -> bool:
+    """
+    Función que verifica si un asiento está disponible para ser comprado
+    
+    Args:
+        asiento (int): Número de asiento a verificar
+        diccPasajeros (dict): Diccionario con los datos de los pasajeros
+        
+    Returns:
+        bool: True si el asiento está disponible, False si no está disponible
+    """
     for rut, datos in diccPasajeros.items():
         if datos["asiento"] == asiento:
             return False
     return True
 
-def solicitarInformacionPasajero(diccPasajeros)-> tuple:
+def solicitarInformacionPasajero(diccPasajeros: dict, rut: str = None, asiento: int = None)-> tuple:
     """
     Función que solicita la información de un pasajero y la guarda en un diccionario
     
@@ -241,33 +351,54 @@ def solicitarInformacionPasajero(diccPasajeros)-> tuple:
         tuple: Tupla con el diccionario de pasajeros actualizado, el número de asiento y el banco
     """
     while True:
-        rut = ingresarRut()
-        if clienteComproPasajes(rut, diccPasajeros):
-            print("[!] Usted ya ha comprado un pasaje")
+        if rut is None:
+            rut = ingresarRut()
+            if clienteComproPasajes(rut, diccPasajeros):
+                print("[!] Usted ya ha comprado un pasaje")
+            else:
+                break
         else:
             break
     nombre = input("[+] Ingrese su nombre: ").capitalize()
     apellido = input("[+] Ingrese su apellido: ").capitalize()
     telefono = input("[+] Ingrese su teléfono: ")
-    banco = input("[+] Ingrese el nombre de su banco: ").upper()
     
-    while True:
-        asiento = ingresarAsiento()
-        if existeAsiento(asiento) and asientoDisponible(asiento, diccPasajeros):
-            diccPasajeros[rut] = {
-                "nombre": nombre,
-                "apellido": apellido,
-                "telefono": telefono,
-                "banco": banco,
-                "asiento": asiento
-            }
-            return (diccPasajeros, asiento, banco)
-        else:
-            print("[!] El asiento seleccionado no está disponible")
+    if asiento is None:
+        while True:
+            banco = input("[+] Ingrese el nombre de su banco: ").upper()
+            asiento = ingresarAsiento()
+            if existeAsiento(asiento) and asientoDisponible(asiento, diccPasajeros):
+                diccPasajeros[rut] = {
+                    "nombre": nombre,
+                    "apellido": apellido,
+                    "telefono": telefono,
+                    "banco": banco,
+                    "asiento": asiento
+                }
+                return (diccPasajeros, asiento, banco)
+            else:
+                print("[!] El asiento seleccionado no está disponible")
+    else:
+        banco = diccPasajeros[rut]["banco"]
+        diccPasajeros[rut] = {
+            "nombre": nombre,
+            "apellido": apellido,
+            "telefono": telefono,
+            "asiento": asiento,
+            "banco": banco
+        }
+        return (diccPasajeros, asiento, banco)
 
 
+
+def main():
+    lista_asientos = []
+    lista_asientos = crearAsientos(FILAS, COLUMNAS)
+    #print(lista_asientos)
+    mostrarMenu(MENU, lista_asientos, ASIENTO_VIP)
+
+### MAIN ###
 ### DECLARACIÓN DE VARIABLES Y CONSTANTES GLOBALES
-
 FILAS = 7
 COLUMNAS = 6
 ASIENTO_VIP = 31
@@ -282,10 +413,5 @@ MENU = """
     5. Salir
 """
 
-### MAIN ###
-lista_asientos = []
-lista_asientos = crearAsientos(FILAS, COLUMNAS)
-#print(lista_asientos)
-mostrarMenu(MENU, lista_asientos, ASIENTO_VIP)
-
-
+if __name__ == "__main__":
+    main()
