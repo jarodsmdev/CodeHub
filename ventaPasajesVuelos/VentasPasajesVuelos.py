@@ -84,11 +84,33 @@ def mostrarMenu(menu: str, lista_asientos: list, asientoVip: int):
         elif choice == "5":
             print(crearTitulo("SALIR"))
             print("[+] Saliendo del programa...")
+            guardarDatos(diccPasajeros)
             isRunning = False
         else:
             print("[!] Opción no válida, intente nuevamente")
 
+def guardarDatos(diccPasajeros: dict):
+    """
+    Función que guarda los datos de los pasajeros en un archivo de texto
+    
+    Args:
+        diccPasajeros (dict): Diccionario con los datos de los pasajeros
+    """
+    with open("Venta_Pasajes.txt", "w") as archivo:
+        headers = "RUT;NOMBRE;APELLIDO;TELEFONO;BANCO;ASIENTO\n"
+        archivo.write(headers)
+        for rut, datos in diccPasajeros.items():
+            archivo.write(f"{rut};{datos['nombre']};{datos['apellido']};{datos['telefono']};{datos['banco']};{datos['asiento']}\n")
+    print("[+] Datos guardados correctamente")
+
 def modificarDatosPasajeros(listaAsientos: list, diccPasajeros: dict):
+    """
+    Función que modifica los datos de un pasajero en un diccionario
+    
+    Args:
+        listaAsientos (list): Matriz de asientos del avión
+        diccPasajeros (dict): Diccionario con los datos de los pasajeros
+    """
     rut = ingresarRut()
     asiento = ingresarAsiento()
     
