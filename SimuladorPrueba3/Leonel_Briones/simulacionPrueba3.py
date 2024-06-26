@@ -42,7 +42,8 @@ def solicitarDatosCliente() -> dict:
     Returns:
         dict: Diccionario con los datos del cliente
     """
-    keys = ["nombre", "apellido", "comuna", "rut"]
+    keys = ["nombre", "apellido"]
+    sectores = ["Colina", "Las Industrias", "Centro"]
     cliente = {}
     
     for k in keys:
@@ -55,7 +56,16 @@ def solicitarDatosCliente() -> dict:
                 print(iconosInput(f"ERROR: {k.capitalize()} no debe estar vacío", "!"))
             # END IF
         # END WHILE
-    cliente["rut"] = cliente["rut"].upper()
+        
+    while True:
+        print("\n[+] Sectores Disponibles:", ", ".join(sectores))
+        ingreso = input(iconosInput(f"Ingrese sector cliente {cliente['nombre']}: ", "+")).title()
+        if ingreso.title() in sectores:
+            cliente["sector"] = ingreso.title()
+            break
+        else:
+            print(iconosInput("ERROR: Sector ingresado no es válido", "!"))
+        # END IF
     
     return cliente
 
@@ -67,6 +77,7 @@ def menuCilindros() -> list:
         list: Lista con las cantidades seleccionadas de cilindros
     """
     cilindros = [5, 15, 45]
+
     seleccionCliente = []
 
     for c in cilindros:
@@ -87,6 +98,7 @@ def menuCilindros() -> list:
     
     # Si la suma de la lista es 0, se vuelve a llamar a la función
     if sum(seleccionCliente) <= 0:
+        print(iconosInput("ERROR: Debe seleccionar al menos un cilindro", "!"))
         seleccionCliente = menuCilindros() # Recursividad
     
     return seleccionCliente
@@ -109,6 +121,15 @@ def esNumero(numero: str) -> bool:
         return False
 
 def registrarPedido(pedidos: list) -> list:
+    """
+    Función que solicita los datos del cliente y el pedido y lo agrega a la lista de pedidos
+    
+    Args:
+        pedidos (list): Lista de pedidos
+        
+    Returns:
+        list: Lista de pedidos con el nuevo pedido agregado
+    """
     cliente = solicitarDatosCliente()
     pedidoCliente = menuCilindros()
     cliente["pedido"] = pedidoCliente
