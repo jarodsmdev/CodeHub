@@ -58,8 +58,9 @@ def solicitarDatosCliente(sectores: list) -> dict:
         # END WHILE
         
     while True:
-        print("\n[+] Sectores Disponibles:", ", ".join(sectores))
-        ingreso = input(iconosInput(f"Ingrese sector cliente {cliente['nombre']}: ", "+")).title()
+        #print("\n[+] Sectores Disponibles:", ", ".join(sectores))
+        #ingreso = input(iconosInput(f"Ingrese sector cliente {cliente['nombre']}: ", "+")).title()
+        ingreso = seleccionSector(sectores)
         if ingreso.title() in sectores:
             cliente["sector"] = ingreso.title()
             break
@@ -100,7 +101,7 @@ def menuCilindros(cilindros: list) -> list:
     # Si la suma de la lista es 0, se vuelve a llamar a la función
     if sum(seleccionCliente) <= 0:
         print(iconosInput("ERROR: Debe seleccionar al menos un cilindro", "!"))
-        seleccionCliente = menuCilindros() # Recursividad
+        seleccionCliente = menuCilindros(cilindros) # Recursividad
     
     return seleccionCliente
 
@@ -136,13 +137,29 @@ def registrarPedido(pedidos: list, cilindros: list, sectores: list) -> list:
     pedidoCliente = menuCilindros(cilindros)
     cliente["pedido"] = pedidoCliente
     
-    # Se agrega el cliente a la lista de pedidos
-    pedidos.append(cliente)
     
-    print(iconosInput("Pedido guardado correctamente", "!"))
+    # Mostrar Resumen del pedido
+    print(iconosInput("RESUMEN DE COMPRA\n", "!"))
+    for k, v in cliente.items():
+        
+        cilindros_str = ", ".join([f"{c}kg" for c in cilindros])
+        if k == "pedido":
+            pedido_str = ", ".join([f"{cantidad}" for cantidad in v])
+            print(f"{k.capitalize()} ({cilindros_str}): {pedido_str}")
+        else:
+            print(f"{k.capitalize()}: {v}")
     
-    return pedidos
-
+    r = input(iconosInput("¿Confirma el pedido? ", "+")).lower()
+    
+    if r != "n":
+        # Se agrega el cliente a la lista de pedidos
+        pedidos.append(cliente)
+        
+        print(iconosInput("Pedido guardado correctamente", "!"))
+        
+        return pedidos
+    else:
+        return None
 
 def listarPedidos(pedidos: list):
     # Lista de pedidos de ejemplo
@@ -267,20 +284,51 @@ def seleccionSector(sectores: list) -> str:
             else:
                 return sectores[opcion - 1]
             
-def exportarHojaRuta(sector: str, pedidos: list):
-
+def exportarHojaRuta(sector: str, pedidos: list, cilindros: list):
+    """
+    Función que exporta un archivo de texto con los pedidos del sector seleccionado
+    
+    Args:
+        sector (str): Sector seleccionado
+        pedidos (list): Lista de pedidos
+        cilindros (list): Lista con el detalle de los cilindros
+    """
+    headerClaves = list(pedidos[0].keys())
+    headerCilindros = []
+    detallePedido = ""
+    
+    # Crear texto encabezado de cilindros en forma de lista
+    for c in cilindros:
+        headerCilindros.append(f"{c}Kg")
+    
     despachos = []
     
+    # Filtrar pedidos por sector
     for p in pedidos:
         if p["sector"] == sector:
             despachos.append(list(p.values()))
-
-    with open(sector + ".txt", "w") as file:
-        for fila in despachos:
-            file.write(str(fila).replace("[", "").replace("'","").replace(",","").replace("]","") + "\n")
     
-    print(iconosInput("Archivo Generado con éxito", "!"))
+    # Crear encabezado
+    salida = " ".join(headerClaves) + "\n"
+    
+    # Prepara la salida de los pedidos, de manera que sea comprendida por el usuario
+    for i in range(len(despachos)):
+        detallePedido = "Pedido: "
+        for j in range(len(headerCilindros)):
+            detallePedido += str(despachos[i][-1][j]) + " Und. de " + headerCilindros[j] + "  | "
+        despachos[i][-1] = detallePedido
 
+    # Crear texto de salida
+    try:
+        with open(sector + ".txt", "w") as file:
+            file.write(salida)
+            for fila in despachos:
+                file.write(str(fila).replace("[", "").replace("'","").replace(",","").replace("]","") + "\n") # Se eliminan los caracteres innecesarios
+        
+        print(iconosInput("Archivo Generado con éxito", "!"))
+    except Exception as e:
+        print(iconosInput("Error al generar archivo", "!"))
+        print(e)
 
 def mostrarMenu(menu: str, pedidos: list, cilindros, sectores: list):
     """
@@ -298,17 +346,21 @@ def mostrarMenu(menu: str, pedidos: list, cilindros, sectores: list):
         opcion = input("[+] Ingrese una opción: ")
         if opcion == "1":
             print(crearTitulo("REGISTRAR PEDIDO"))
-            pedidos = registrarPedido(pedidos, cilindros, sectores)
-            #print(pedidos) # TODO: Borrar
+            pedidoTemporal = registrarPedido(pedidos, cilindros, sectores) # Puede retornar None
+            # Sólo en caso de que exista realmente un pedido se actualizará la variable pedidos
+            if pedidoTemporal != None:
+                pedidos = pedidoTemporal
         elif opcion == "2":
             print(crearTitulo("LISTAR PEDIDOS"))
             listarPedidosV2(pedidos, cilindros)
-            #listarPedidos(pedidos, cilindros)
             input(iconosInput("Presione una tecla para continuar...", "+"))
         elif opcion == "3":
             print(crearTitulo("IMPRIMIR HOJA DE RUTA"))
-            sector = seleccionSector(sectores)
-            exportarHojaRuta(sector, pedidos)
+            if len(pedidos) > 0:
+                sector = seleccionSector(sectores)
+                exportarHojaRuta(sector, pedidos, cilindros)
+            else:
+                print(iconosInput("No hay pedidos registrados.", "!"))
             input(iconosInput("Presione una tecla para continuar...", "+"))
         elif opcion == "4":
             print("\n[!] Saliendo...")
@@ -322,13 +374,17 @@ def main(menu, pedidos, cilindros, sectores):
 ### DECLARACIÓN DE VARIABLES ###
 MENU = """\n1. Registrar Pedido\n2. Listar todos los pedidos\n3. Imprimir hoja de ruta\n4. Salir del programa\n"""
 pedidos = []
+""" # DATOS DE PRUEBA
 pedidos = [
-        {'nombre': 'Juan', 'apellido': 'Pérez', 'sector': 'Centro', 'pedido': [1, 0, 1]},
+        {'nombre': 'Juan', 'apellido': 'Pérez', 'sector': 'Las Industrias', 'pedido': [1, 0, 1]},
         {'nombre': 'Marcelo', 'apellido': 'Rivadeneira', 'sector': 'Centro', 'pedido': [10, 1, 0]},
-        {'nombre': 'Sebastián', 'apellido': 'Galáz', 'sector': 'Centro', 'pedido': [4, 5, 1]}
+        {'nombre': 'Sebastián', 'apellido': 'Galáz', 'sector': 'Colina', 'pedido': [4, 5, 1]}
     ]
-cilindros = [5, 15, 45]
-sectores = ["Colina", "Las Industrias", "Centro"]
+"""
+# CONFIGURACIÓN DE LA APLICACIÓN 
+# PUEDE AGREGAR MÁS TIPOS DE CILINDROS O SECTORES COMO SE REQUERA
+cilindros = [5, 15, 45] #<- 
+sectores = ["Colina", "Las Industrias", "Centro"] #<-
 
 ### MAIN ###
 
