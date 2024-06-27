@@ -277,7 +277,7 @@ def exportarHojaRuta(sector: str, pedidos: list):
 
     with open(sector + ".txt", "w") as file:
         for fila in despachos:
-            file.write(str(fila) + "\n")
+            file.write(str(fila).replace("[", "").replace("'","").replace(",","").replace("]","") + "\n")
     
     print(iconosInput("Archivo Generado con éxito", "!"))
 
