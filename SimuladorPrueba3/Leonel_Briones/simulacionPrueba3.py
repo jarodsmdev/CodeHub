@@ -69,15 +69,16 @@ def solicitarDatosCliente() -> dict:
     
     return cliente
 
-def menuCilindros() -> list:
+def menuCilindros(cilindros: list) -> list:
     """
     Función que recorre la lista 'cilindros' y solicita la cantidad de cilindros de cada tipo y devuelve una lista con las cantidades seleccionadas
     
+    Args:
+        list: Lista con el peso de cada cilindro
     Returns:
         list: Lista con las cantidades seleccionadas de cilindros
     """
-    cilindros = [5, 15, 45]
-
+    
     seleccionCliente = []
 
     for c in cilindros:
@@ -120,7 +121,7 @@ def esNumero(numero: str) -> bool:
         print(iconosInput("Valor ingresado no es numérico", "!"))
         return False
 
-def registrarPedido(pedidos: list) -> list:
+def registrarPedido(pedidos: list, cilindros: list) -> list:
     """
     Función que solicita los datos del cliente y el pedido y lo agrega a la lista de pedidos
     
@@ -131,7 +132,7 @@ def registrarPedido(pedidos: list) -> list:
         list: Lista de pedidos con el nuevo pedido agregado
     """
     cliente = solicitarDatosCliente()
-    pedidoCliente = menuCilindros()
+    pedidoCliente = menuCilindros(cilindros)
     cliente["pedido"] = pedidoCliente
     
     # Se agrega el cliente a la lista de pedidos
@@ -180,39 +181,45 @@ def listarPedidos(pedidos: list):
             print(f"| {str(v).ljust(max_lens[k])} ", end="")
         print("|")
 
-def listarPedidosV2(pedidos: list):
-    # Lista de pedidos de ejemplo
+def listarPedidosV2(pedidos: list, cilindrosKg: list):
+        # Lista de pedidos de ejemplo
     """
     pedidos = [
         {'nombre': 'Juan', 'apellido': 'Pérez', 'sector': 'Colina', 'pedido': [1, 0, 1]},
         {'nombre': 'Marcelo', 'apellido': 'Rivadeneira', 'sector': 'Las Industrias', 'pedido': [10, 1, 0]}
     ]
     """
+    
     if len(pedidos) > 0:
         # Calcular anchos máximos de cada columna
         max_lens = {}
+        cilindros = []
+        for c in cilindrosKg:
+            descripcion = f"Cilindro {c}kg"
+            cilindros.append(descripcion)
         
         for p in pedidos:
             for k, v in p.items():
                 if k == 'pedido':
-                    cilindros = ['Cilindro 5kg', 'Cilindro 15kg', 'Cilindro 45kg']
                     for i, cantidad in enumerate(v):
                         nombre_columna = cilindros[i]
                         max_lens[nombre_columna] = max(max_lens.get(nombre_columna, len(nombre_columna)), len(str(cantidad)))
                 else:
                     max_lens[k] = max(max_lens.get(k, len(k)), len(str(v)))
-
+                    
+        # Línea separadora
+        barraSeparadora = sum(max_lens.values()) + 3 * (len(pedidos[0].keys()) - 1 + len(cilindros)) + 1
+        print("-" * barraSeparadora)
         # Imprimir encabezado de la tabla
         for k in pedidos[0].keys():
             if k != 'pedido':
                 print(f"| {k.capitalize().ljust(max_lens[k])} ", end="")
-        for cilindro in ['Cilindro 5kg', 'Cilindro 15kg', 'Cilindro 45kg']:
-            print(f"| {cilindro.ljust(max_lens[cilindro])} ", end="")
+        for c in cilindros:
+            print(f"| {c.ljust(max_lens[c])} ", end="")
         print("|")
         
         # Línea separadora
-        total_width = sum(max_lens.values()) + 3 * (len(pedidos[0].keys()) + 2) + 1
-        print("-" * total_width)
+        print("-" * barraSeparadora)
         
         # Imprimir los datos de clientes en la tabla
         for p in pedidos:
@@ -220,20 +227,20 @@ def listarPedidosV2(pedidos: list):
                 if k != 'pedido':
                     print(f"| {str(v).ljust(max_lens[k])} ", end="")
             for i, cantidad in enumerate(p['pedido']):
-                nombre_columna = ['Cilindro 5kg', 'Cilindro 15kg', 'Cilindro 45kg'][i]
+                nombre_columna = cilindros[i]
                 print(f"| {str(cantidad).center(max_lens[nombre_columna])} ", end="")
             print("|")
     else:
-        print(iconosInput("No hay pedidos registrados", "!"))
-    # END IF
+        print("No hay pedidos registrados")
 
-def mostrarMenu(menu: str, pedidos: list):
+def mostrarMenu(menu: str, pedidos: list, cilindros):
     """
     Función que muestra el menu definido en una constante, recibe la opción del usuario y ejecuta la acción correspondiente
     
     Args:
         menu (str): Menú a mostrar
         pedidos (list): Lista de pedidos
+        cilindros (list): Lista con el detalle del peso de cada cilindro
     """
     while True:
         print(crearTitulo("GAXPLOSIVE"))
@@ -241,12 +248,12 @@ def mostrarMenu(menu: str, pedidos: list):
         opcion = input("[+] Ingrese una opción: ")
         if opcion == "1":
             print(crearTitulo("REGISTRAR PEDIDO"))
-            pedidos = registrarPedido(pedidos)
+            pedidos = registrarPedido(pedidos, cilindros)
             #print(pedidos) # TODO: Borrar
         elif opcion == "2":
             print(crearTitulo("LISTAR PEDIDOS"))
-            listarPedidosV2(pedidos)
-            #listarPedidos(pedidos)
+            listarPedidosV2(pedidos, cilindros)
+            #listarPedidos(pedidos, cilindros)
         elif opcion == "3":
             print(crearTitulo("IMPRIMIR HOJA DE RUTA"))
         elif opcion == "4":
@@ -255,14 +262,15 @@ def mostrarMenu(menu: str, pedidos: list):
         else:
             print("[!] Opción Ingresada no es válida")
 
-def main(menu, pedidos):
-    mostrarMenu(menu, pedidos)
+def main(menu, pedidos, cilindros):
+    mostrarMenu(menu, pedidos, cilindros)
 
 ### DECLARACIÓN DE VARIABLES ###
 MENU = """\n1. Registrar Pedido\n2. Listar todos los pedidos\n3. Imprimir hoja de ruta\n4. Salir del programa\n"""
 pedidos = []
+cilindros = [5, 15, 45]
 
 ### MAIN ###
 signal.signal(signal.SIGINT, handler)
 if '__main__' == "__main__":
-    main(MENU, pedidos)
+    main(MENU, pedidos, cilindros)
