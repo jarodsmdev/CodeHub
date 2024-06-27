@@ -34,7 +34,7 @@ def crearTitulo(titulo: str) -> str:
     linea = "=" * (longitud + 4)  # Se suman 4 para los espacios antes y después del título
     return f"\n\t{linea}\n\t  {titulo}  \n\t{linea}\n"
 
-def solicitarDatosCliente() -> dict:
+def solicitarDatosCliente(sectores: list) -> dict:
     """
     Función que solicita los datos del cliente y los devuelve en un diccionario
     Se definen en una lista las keys que se van a solicitar y se recorre para solicitar los datos
@@ -43,7 +43,7 @@ def solicitarDatosCliente() -> dict:
         dict: Diccionario con los datos del cliente
     """
     keys = ["nombre", "apellido"]
-    sectores = ["Colina", "Las Industrias", "Centro"]
+    
     cliente = {}
     
     for k in keys:
@@ -118,25 +118,29 @@ def esNumero(numero: str) -> bool:
         numero = int(numero)
         return True
     except Exception:
-        print(iconosInput("Valor ingresado no es numérico", "!"))
+        print(iconosInput("Valor ingresado no es numérico\n", "!"))
         return False
 
-def registrarPedido(pedidos: list, cilindros: list) -> list:
+def registrarPedido(pedidos: list, cilindros: list, sectores: list) -> list:
     """
     Función que solicita los datos del cliente y el pedido y lo agrega a la lista de pedidos
     
     Args:
         pedidos (list): Lista de pedidos
-        
+        cilindros (list): Lista de tipos de cilindros
+        sectores (list): Lista de sectores diponibles para despacho
     Returns:
         list: Lista de pedidos con el nuevo pedido agregado
     """
-    cliente = solicitarDatosCliente()
+    cliente = solicitarDatosCliente(sectores)
     pedidoCliente = menuCilindros(cilindros)
     cliente["pedido"] = pedidoCliente
     
     # Se agrega el cliente a la lista de pedidos
     pedidos.append(cliente)
+    
+    print(iconosInput("Pedido guardado correctamente", "!"))
+    
     return pedidos
 
 
@@ -180,13 +184,16 @@ def listarPedidos(pedidos: list):
         for k, v in p.items():
             print(f"| {str(v).ljust(max_lens[k])} ", end="")
         print("|")
+    
+    print(barraSeparadora)
 
 def listarPedidosV2(pedidos: list, cilindrosKg: list):
-        # Lista de pedidos de ejemplo
+    # Lista de pedidos de ejemplo
     """
     pedidos = [
         {'nombre': 'Juan', 'apellido': 'Pérez', 'sector': 'Colina', 'pedido': [1, 0, 1]},
-        {'nombre': 'Marcelo', 'apellido': 'Rivadeneira', 'sector': 'Las Industrias', 'pedido': [10, 1, 0]}
+        {'nombre': 'Marcelo', 'apellido': 'Rivadeneira', 'sector': 'Las Industrias', 'pedido': [10, 1, 0]},
+        {'nombre': 'Sebastián', 'apellido': 'Galáz', 'sector': 'Centro', 'pedido': [4, 5, 1]}
     ]
     """
     
@@ -210,6 +217,7 @@ def listarPedidosV2(pedidos: list, cilindrosKg: list):
         # Línea separadora
         barraSeparadora = sum(max_lens.values()) + 3 * (len(pedidos[0].keys()) - 1 + len(cilindros)) + 1
         print("-" * barraSeparadora)
+        
         # Imprimir encabezado de la tabla
         for k in pedidos[0].keys():
             if k != 'pedido':
@@ -230,10 +238,51 @@ def listarPedidosV2(pedidos: list, cilindrosKg: list):
                 nombre_columna = cilindros[i]
                 print(f"| {str(cantidad).center(max_lens[nombre_columna])} ", end="")
             print("|")
+            
+        print("-" * barraSeparadora)
     else:
-        print("No hay pedidos registrados")
+        print(iconosInput("No hay pedidos registrados.", "!"))
+        
+def seleccionSector(sectores: list) -> str:
+    """
+    Función que muestra los sectores disponibles y solicita al usuario que seleccione uno
+    
+    Args:
+        sectores (list): Lista de sectores disponibles
+        
+    Returns:
+        str: Sector seleccionado
+    """
+    despachos = iconosInput("Despachos disponibles: \n", "!")
+    for i in range(len(sectores)):
+        despachos += f"\t{i + 1}. {sectores[i]}\n"
+    
+    while True:
+        print(despachos)
+        opcion = input(iconosInput("Seleccione una opción: ", "+"))
+        if esNumero(opcion):
+            opcion = int(opcion)
+            if opcion <= 0 or opcion > len(sectores):
+                print(iconosInput("ERROR: Opción no válida\n", "!"))
+            else:
+                return sectores[opcion - 1]
+            
+def exportarHojaRuta(sector: str, pedidos: list):
 
-def mostrarMenu(menu: str, pedidos: list, cilindros):
+    despachos = []
+    
+    for p in pedidos:
+        if p["sector"] == sector:
+            despachos.append(list(p.values()))
+
+    with open(sector + ".txt", "w") as file:
+        for fila in despachos:
+            file.write(str(fila) + "\n")
+    
+    print(iconosInput("Archivo Generado con éxito", "!"))
+
+
+def mostrarMenu(menu: str, pedidos: list, cilindros, sectores: list):
     """
     Función que muestra el menu definido en una constante, recibe la opción del usuario y ejecuta la acción correspondiente
     
@@ -241,6 +290,7 @@ def mostrarMenu(menu: str, pedidos: list, cilindros):
         menu (str): Menú a mostrar
         pedidos (list): Lista de pedidos
         cilindros (list): Lista con el detalle del peso de cada cilindro
+        sectores (list): Lista con los sectores de despacho
     """
     while True:
         print(crearTitulo("GAXPLOSIVE"))
@@ -248,29 +298,40 @@ def mostrarMenu(menu: str, pedidos: list, cilindros):
         opcion = input("[+] Ingrese una opción: ")
         if opcion == "1":
             print(crearTitulo("REGISTRAR PEDIDO"))
-            pedidos = registrarPedido(pedidos, cilindros)
+            pedidos = registrarPedido(pedidos, cilindros, sectores)
             #print(pedidos) # TODO: Borrar
         elif opcion == "2":
             print(crearTitulo("LISTAR PEDIDOS"))
             listarPedidosV2(pedidos, cilindros)
             #listarPedidos(pedidos, cilindros)
+            input(iconosInput("Presione una tecla para continuar...", "+"))
         elif opcion == "3":
             print(crearTitulo("IMPRIMIR HOJA DE RUTA"))
+            sector = seleccionSector(sectores)
+            exportarHojaRuta(sector, pedidos)
+            input(iconosInput("Presione una tecla para continuar...", "+"))
         elif opcion == "4":
             print("\n[!] Saliendo...")
             break
         else:
             print("[!] Opción Ingresada no es válida")
 
-def main(menu, pedidos, cilindros):
-    mostrarMenu(menu, pedidos, cilindros)
+def main(menu, pedidos, cilindros, sectores):
+    mostrarMenu(menu, pedidos, cilindros, sectores)
 
 ### DECLARACIÓN DE VARIABLES ###
 MENU = """\n1. Registrar Pedido\n2. Listar todos los pedidos\n3. Imprimir hoja de ruta\n4. Salir del programa\n"""
 pedidos = []
+pedidos = [
+        {'nombre': 'Juan', 'apellido': 'Pérez', 'sector': 'Centro', 'pedido': [1, 0, 1]},
+        {'nombre': 'Marcelo', 'apellido': 'Rivadeneira', 'sector': 'Centro', 'pedido': [10, 1, 0]},
+        {'nombre': 'Sebastián', 'apellido': 'Galáz', 'sector': 'Centro', 'pedido': [4, 5, 1]}
+    ]
 cilindros = [5, 15, 45]
+sectores = ["Colina", "Las Industrias", "Centro"]
 
 ### MAIN ###
+
 signal.signal(signal.SIGINT, handler)
 if '__main__' == "__main__":
-    main(MENU, pedidos, cilindros)
+    main(MENU, pedidos, cilindros, sectores)
