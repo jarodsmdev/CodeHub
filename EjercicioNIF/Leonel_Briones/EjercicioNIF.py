@@ -1,25 +1,8 @@
-import sys, signal
+import signal
 import csv
+import fnUtiles as fn
+import fnProcesos as fnP
 
-def def_handler(sig, frame):
-    print("\n[!] Saliendo...\n")
-    sys.exit(1)
-
-def crearTitulo(titulo: str) -> str:
-    longitud = len(titulo)
-    linea = "=" * (longitud + 4)  # Se suman 4 para los espacios antes y después del título
-    return f"\t{linea}\n\t  {titulo}  \n\t{linea}"
-
-def esNumero(numero: int | str) -> bool:
-    try:
-        if numero == "":
-            print("[!] ERROR: Debe ingresar un valor")
-        else:
-            numero = int(numero)
-            return True
-    except Exception as e:
-        print("[!] ERROR: Valor ingresado no es numérico")
-        return False
 
 def solicitarNombreApellido() -> list:
     nombre = []
@@ -32,27 +15,11 @@ def solicitarNombreApellido() -> list:
             print("[!] ERROR: Debe ingresar nombre y apellido")
     return nombre
 
-def validarNombreApellido(nombreCompleto: list) -> bool:
-    MIN_CARACTERES = 8
-    esValido = False
-    
-    nombre = nombreCompleto[0]
-    apellido = nombreCompleto[1]
-    if len(nombre) < MIN_CARACTERES:
-        print(f"[!] ERROR: Nombre debe tener como mínimo {MIN_CARACTERES}, ha ingresado {len(nombre)}")
-        return esValido
-    
-    if len(apellido) < MIN_CARACTERES:
-        print(f"[!] ERROR: Apellido debe tener como mínimo {MIN_CARACTERES}, ha ingresado {len(apellido)}")
-        return esValido
-    
-    esValido = True
-    return esValido
 
 def solicitarEdad() -> int:
     while True:
         edad = input("[+] Ingrese edad: ")
-        if esNumero(edad):
+        if fn.esNumero(edad):
             edad = int(edad)
             if edad >= 0:
                 break
@@ -60,61 +27,27 @@ def solicitarEdad() -> int:
                 print("[!] ERROR: Edad debe ser mayor o igual a cero")
     return edad
 
-def esMayorde15(edad: int) -> bool:
-    if edad >= 15:
-        return True
-    else:
-        print("[!] ERROR: Edad ingresada es menor a 15")
-    return False
 
 def ingresarNIF() -> str:
     nif = input("[+] Ingrese NIF de ciudadano: ").upper()
     return nif
 
-def validarNIF(nif: str) -> bool:
-    numeros = "0123456789"
-    abecedario = ""
-    
-    # CODIGO ASCII A-Z
-    for c in range(65, 91):
-        abecedario += chr(c)
-
-    if len(nif) != 12:
-        print("[!] ERROR: NIF debe contener 12 caracteres")
-    else:
-
-        for n in nif[:8]:
-            if n not in numeros:
-                print("[!] ERROR: NIF debe contener valores numéricos en los primeros 8 caracteres")
-                return esValido
-        if nif[8] != "-":
-            print("[!] ERROR: Formato de NIF ingresado es incorrecto")
-            return esValido
-
-        for c in nif[-3:]:
-            if c not in numeros + abecedario:
-                print("[!] ERROR: Últimos 3 caracteres deben ser números o letras")
-                return esValido
-        
-        esValido = True
-    return esValido
-
 def guardarPersona(personas: list) -> list:
 
     nif = ingresarNIF()
-    while not validarNIF(nif):
+    while not fnP.validarNIF(nif):
         nif = ingresarNIF()
         
-    if existeNIF(personas, nif):
+    if fnP.existeNIF(personas, nif):
         print("[!] NIF ya se encuentra registrado")
         guardarPersona(personas) # RECURSIVIDAD
     else:
         nombreApellido = solicitarNombreApellido()
-        while not validarNombreApellido(nombreApellido):
+        while not fnP.validarNombreApellido(nombreApellido):
             nombreApellido = solicitarNombreApellido()
     
         edad = solicitarEdad()
-        while not esMayorde15(edad):
+        while not fnP.esMayorde15(edad):
             edad = solicitarEdad()
             
         persona = {
@@ -126,12 +59,6 @@ def guardarPersona(personas: list) -> list:
         personas.append(persona)
         return personas
 
-def existeNIF(personas:list, nif: str) -> bool:
-    for p in personas:
-        if p['nif'] == nif:
-            return True
-        else:
-            return False
 
 def mostrarPersonaNIF(personas:list, nif: str):
     if len(personas) > 0:
@@ -147,7 +74,6 @@ def mostrarPersonaNIF(personas:list, nif: str):
 
 def exportarDatos(personas: list):
     list_personas = []
-    list_personas = [['11111111-111', 'Leonel12', 'Briones77', 45], ['22222222-222', 'Asdfasdf', 'Asdfasdfa', 52], ['33333333-333', 'Werwqreqwer', 'Rewwqrqwer', 85]]
     
     print("[!] Ingrese rango de Edad para el filtro: ")
     edadMin = solicitarEdad()
@@ -185,30 +111,30 @@ def menu(menu: str):
     isRunning = True
     
     while isRunning:
-        print(crearTitulo("Registro de Ciudadanos"))
+        print(fn.crearTitulo("Registro de Ciudadanos"))
         print(menu)
         opcion = input("\n[+] Ingrese una opción: ")
-        if esNumero(opcion):
+        if fn.esNumero(opcion):
             opcion = int(opcion)
 
             if opcion == 1:
-                print(crearTitulo("Guardar Persona"))
+                print(fn.crearTitulo("Guardar Persona"))
                 personas = guardarPersona(personas)
                 #print(personas) # TODO BORRAR
             
             elif opcion == 2:
-                print(crearTitulo("Buscar"))
+                print(fn.crearTitulo("Buscar"))
                 nif = ingresarNIF()
-                while not validarNIF(nif):
+                while not fnP.validarNIF(nif):
                     nif = ingresarNIF()
                 # END WHILE
-                if existeNIF(personas, nif):
+                if fnP.existeNIF(personas, nif):
                     mostrarPersonaNIF(personas, nif)
                 else:
                     print("[!] ERROR: No existen datos")
 
             elif opcion == 3:
-                print(crearTitulo("Guardar Archivos"))
+                print(fn.crearTitulo("Guardar Archivos"))
                 exportarDatos(personas)
             elif opcion == 4:
                 isRunning = False
@@ -224,6 +150,6 @@ def main():
     menu(MENU)
     return
 
-signal.signal(signal.SIGINT, def_handler)
+signal.signal(signal.SIGINT, fn.def_handler)
 if __name__ == "__main__":
     main()
