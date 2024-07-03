@@ -74,7 +74,6 @@ def validarNIF(nif: str) -> bool:
     for c in range(65, 91):
         abecedario += chr(c)
 
-    esValido = False
     if len(nif) != 12:
         print("[!] ERROR: NIF debe contener 12 caracteres")
     else:
@@ -143,6 +142,7 @@ def mostrarPersonaNIF(personas:list, nif: str):
 
 def exportarDatos(personas: list):
     list_personas = []
+    list_personas = [['11111111-111', 'Leonel12', 'Briones77', 45], ['22222222-222', 'Asdfasdf', 'Asdfasdfa', 52], ['33333333-333', 'Werwqreqwer', 'Rewwqrqwer', 85]]
     
     print("[!] Ingrese rango de Edad para el filtro: ")
     edadMin = solicitarEdad()
@@ -155,17 +155,19 @@ def exportarDatos(personas: list):
             list_personas.append(list(p.values()))
             
     if len(list_personas) > 0:
-        # Ordenamiento menor a mayor
+        # Ordenamiento alfabético
         for p in list_personas:
-            p.reverse() # Invierto los elementos para que edad esté al inicio
-            
-        list_personas.sort() # Ordeno la lista de menor a mayor edad
+            p.append(p[0])
+            p.pop(0)
         
+        # Ordenar alfabéticamente
+        list_personas.sort()
+        
+        # Retornar al formato inicial, pero con los datos ordenados
         for p in list_personas:
-            p.reverse() # Vuelvo a invertir para que edad vuelva a final pero ya está ordenada
+            p.insert(0, p[-1])
+            p.pop()
 
-        print(list_personas)
-        
     with open(nombreArchivo, "w", newline="") as file:
         writer = csv.writer(file)
         for p in list_personas:
