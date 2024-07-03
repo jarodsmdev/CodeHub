@@ -1,4 +1,9 @@
+import sys, signal
 import csv
+
+def def_handler(sig, frame):
+    print("\n[!] Saliendo...\n")
+    sys.exit(1)
 
 def crearTitulo(titulo: str) -> str:
     longitud = len(titulo)
@@ -189,7 +194,7 @@ def menu(menu: str):
             if opcion == 1:
                 print(crearTitulo("Guardar Persona"))
                 personas = guardarPersona(personas)
-                print(personas) # TODO BORRAR
+                #print(personas) # TODO BORRAR
             
             elif opcion == 2:
                 print(crearTitulo("Buscar"))
@@ -219,5 +224,6 @@ def main():
     menu(MENU)
     return
 
+signal.signal(signal.SIGINT, def_handler)
 if __name__ == "__main__":
     main()
