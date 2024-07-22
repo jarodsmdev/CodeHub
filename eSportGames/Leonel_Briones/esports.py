@@ -4,6 +4,14 @@ def crearTitulo(titulo: str) -> str:
     return f"\t{linea}\n\t  {titulo}  \n\t{linea}"
 
 def menu(menu: str, juegos: list, tipoJugador: list, id: int, registros: list):
+    #TODO: BORRAR DATOS DE PRUEBA
+    if len(registros) == 0:
+        registros = [{'id': 1, 'nombre': 'Jugador A', 'categoria': 'Experto', 'juegos': {'Fornite': 125000}},
+                    {'id': 2, 'nombre': 'Jugador B', 'categoria': 'Experto', 'juegos': {'FIFA': 3500, 'Valorant': 0}},
+                    {'id': 3, 'nombre': 'Jugador C', 'categoria': 'Avanzado', 'juegos': {'Fornite': -9, 'FIFA': 5, 'Valorant': 1500}},
+                    #{'id': 4, 'nombre': 'Adfa', 'categoria': 'Principiante', 'juegos': {'Fornite': 100}}
+                    ]
+    
     while True:
         print("")
         print(crearTitulo("== eSPORT GAMES =="))
@@ -15,17 +23,12 @@ def menu(menu: str, juegos: list, tipoJugador: list, id: int, registros: list):
             print(registros) #TODO: BORRAR
         elif opcion == "2":
             print(crearTitulo("LISTAR TODOS LOS PUNTAJES"))
-            
-            #TODO: BORRAR DATOS DE PRUEBA
-            if len(registros) == 0:
-                registros = [{'id': 1, 'nombre': 'Jugador A', 'categoria': 'Experto', 'juegos': {'Fornite': 125000}},
-                             {'id': 2, 'nombre': 'Jugador B', 'categoria': 'Experto', 'juegos': {'FIFA': 3500, 'Valorant': 0}},
-                             {'id': 3, 'nombre': 'Jugador C', 'categoria': 'Avanzado', 'juegos': {'Fornite': -9, 'FIFA': 5, 'Valorant': 1500}}]
-            
-            tabla = listarPuntajes(registros, juegos)
-            exportarTxt(tabla)
+            tablaPuntajes = listarPuntajes(registros, juegos)
+            exportarTxt(tablaPuntajes, "tabla_puntajes")
         elif opcion == "3":
             print(crearTitulo("IMPRIMIR POR TIPO"))
+            tablaTipo = filtrarPorTipo(registros, TIPO_JUGADOR, juegos)
+            exportarTxt(tablaTipo, "tabla_tipo_jugadores")
         elif opcion == "4":
             print(crearTitulo("SALIR"))
             print("[!] Saliendo...")
@@ -135,12 +138,71 @@ def seleccionarTipoJugador(TIPO_JUGADOR: list) -> str:
         #END WHILE
         
 def listarPuntajes(lista: list, juegos: list) -> str:
+        # Calcular los anchos de las columnas basado en los datos
+    ancho_id, ancho_nombre, ancho_juegos, ancho_tipo = calcularAnchos(lista, juegos)
+
+    # Crear el encabezado
+    header = generarEncabezado(ancho_id, ancho_nombre, ancho_juegos, ancho_tipo, juegos)
+    
+    # Inicializar el string completo con el encabezado
+    tabla = f"\n{header}\n" + "-" * len(header) + "\n"
+    
+    # Recorrer la lista de jugadores y construir cada fila
+    for j in lista:
+        tabla += f"{generarFila(j, ancho_id, ancho_nombre, ancho_juegos, ancho_tipo, juegos)}\n"
+    
+    # Añadir la línea final
+    tabla += "-" * len(header) + "\n"
+    
+    print(tabla)
+    return tabla
+
+def exportarTxt(tabla: str, fileName: str):
+    try:
+        fileName = fileName + ".txt"
+        with open(fileName, "w") as file:
+            file.write(tabla)
+        print("[!] Archivo Exportado con éxito")
+    except Exception as error:
+        print("[!] ERROR:", error)
+        
+def filtrarPorTipo(registros: list, TIPO_JUGADOR: list, juegos: list) -> str:
+    filtro = seleccionarTipoJugador(TIPO_JUGADOR)
+
+    # Filtrar los registros según el filtro sin usar comprensión de listas
+    lista_filtrada = []
+    for j in registros:
+        if j.get('categoria') == filtro:
+            lista_filtrada.append(j)
+    
+    if not lista_filtrada:
+        mensaje = "No se encontraron registros con el filtro especificado."
+        print(mensaje)
+        return mensaje
+    
+    # Calcular los anchos de las columnas basado en los datos filtrados
+    ancho_id, ancho_nombre, ancho_juegos, ancho_tipo = calcularAnchos(lista_filtrada, juegos)
+
+    # Crear el encabezado
+    header = generarEncabezado(ancho_id, ancho_nombre, ancho_juegos, ancho_tipo, juegos)
+    
+    # Inicializar el string completo con el encabezado
+    tabla = f"\n{header}\n" + "-" * len(header) + "\n"
+    
+    # Recorrer la lista filtrada de jugadores y construir cada fila
+    for j in lista_filtrada:
+        tabla += f"{generarFila(j, ancho_id, ancho_nombre, ancho_juegos, ancho_tipo, juegos)}\n"
+    
+    # Añadir la línea final
+    tabla += "-" * len(header) + "\n"
+    print(tabla)
+    return tabla   
+
+def calcularAnchos(lista: list, juegos: list):
     # Inicializar los anchos de las columnas con los largos de los nombres de las columnas
     ancho_id = len("Id Jugador")
     ancho_nombre = len("Nombre")
-    ancho_juegos = {}
-    for juego in juegos:
-        ancho_juegos[juego] = len(juego.upper())
+    ancho_juegos = {juego: len(juego.upper()) for juego in juegos}
     ancho_tipo = len("Tipo")
 
     # Calcular los anchos máximos de las columnas basado en los datos
@@ -151,42 +213,30 @@ def listarPuntajes(lista: list, juegos: list) -> str:
         for juego in juegos:
             ancho_juegos[juego] = max(ancho_juegos[juego], len(str(j['juegos'].get(juego, 0))))
 
+    return ancho_id, ancho_nombre, ancho_juegos, ancho_tipo
+
+def generarEncabezado(ancho_id: int, ancho_nombre: int, ancho_juegos: dict, ancho_tipo: int, juegos: list):
     # Crear el encabezado dinámicamente
     header = f"{'Id Jugador':<{ancho_id}} | {'Nombre':<{ancho_nombre}} |"
     for juego in juegos:
         header += f" {juego.upper():>{ancho_juegos[juego]}} |"
     header += f" {'Tipo':<{ancho_tipo}}"
 
-    # Inicializar el string completo con el encabezado
-    tabla = f"\n{header}\n" + "-" * len(header) + "\n"
-    
-    # Recorrer la lista de jugadores y construir cada fila
-    for j in lista:
-        id_jugador = j['id']
-        nombre = j['nombre']
-        categoria = j.get('categoria', 'N/A')
-        
-        # Crear la fila para cada jugador con puntajes alineados a la derecha
-        row = f"{id_jugador:<{ancho_id}} | {nombre:<{ancho_nombre}} |"
-        for juego in juegos:
-            puntaje = j['juegos'].get(juego, 0)
-            row += f" {puntaje:>{ancho_juegos[juego]}} |"
-        row += f" {categoria:<{ancho_tipo}}"
-        tabla += f"{row}\n"
-    
-    # Añadir la línea final
-    tabla += "-" * len(header) + "\n"
-    print(tabla)
-    return tabla
+    return header
 
-def exportarTxt(tabla: str):
-    try:
-        fileName = "puntajes.txt"
-        with open(fileName, "w") as file:
-            file.write(tabla)
-        print("[!] Archivo Exportado con éxito")
-    except Exception as error:
-        print("[!] ERROR:", error)
+def generarFila(jugador: dict, ancho_id: int, ancho_nombre: int, ancho_juegos: dict, ancho_tipo: int, juegos: list):
+    id_jugador = jugador['id']
+    nombre = jugador['nombre']
+    categoria = jugador.get('categoria', 'N/A')
+    
+    # Crear la fila para cada jugador con puntajes alineados a la derecha
+    row = f"{id_jugador:<{ancho_id}} | {nombre:<{ancho_nombre}} |"
+    for juego in juegos:
+        puntaje = jugador['juegos'].get(juego, 0)
+        row += f" {puntaje:>{ancho_juegos[juego]}} |"
+    row += f" {categoria:<{ancho_tipo}}"
+    
+    return row
 
 if __name__ == "__main__":
     JUEGOS = ["Fornite", "FIFA", "Valorant"]
