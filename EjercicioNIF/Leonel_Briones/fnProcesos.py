@@ -23,6 +23,7 @@ def esMayorde15(edad: int) -> bool:
     return False
 
 def validarNIF(nif: str) -> bool:
+    esValido = False
     numeros = "0123456789"
     abecedario = ""
     
@@ -32,21 +33,26 @@ def validarNIF(nif: str) -> bool:
 
     if len(nif) != 12:
         print("[!] ERROR: NIF debe contener 12 caracteres")
+        print("[!] Formato: 99999999-RTX")
     else:
 
         for n in nif[:8]:
             if n not in numeros:
                 print("[!] ERROR: NIF debe contener valores numéricos en los primeros 8 caracteres")
+                print("[!] Formato: 99999999-RTX")
                 return esValido
+
         if nif[8] != "-":
             print("[!] ERROR: Formato de NIF ingresado es incorrecto")
+            print("[!] Formato: 99999999-RTX")
             return esValido
 
         for c in nif[-3:]:
             if c not in numeros + abecedario:
                 print("[!] ERROR: Últimos 3 caracteres deben ser números o letras")
+                print("[!] Formato: 99999999-RTX")
                 return esValido
-        
+            
         esValido = True
     return esValido
 
