@@ -4,13 +4,6 @@ def crearTitulo(titulo: str) -> str:
     return f"\t{linea}\n\t  {titulo}  \n\t{linea}"
 
 def menu(menu: str, juegos: list, tipoJugador: list, id: int, registros: list):
-    #TODO: BORRAR DATOS DE PRUEBA
-    if len(registros) == 0:
-        registros = [{'id': 1, 'nombre': 'Jugador A', 'categoria': 'Experto', 'juegos': {'Fornite': 125000}},
-                    {'id': 2, 'nombre': 'Jugador B', 'categoria': 'Experto', 'juegos': {'FIFA': 3500, 'Valorant': 0}},
-                    {'id': 3, 'nombre': 'Jugador C', 'categoria': 'Avanzado', 'juegos': {'Fornite': -9, 'FIFA': 5, 'Valorant': 1500}},
-                    #{'id': 4, 'nombre': 'Adfa', 'categoria': 'Principiante', 'juegos': {'Fornite': 100}}
-                    ]
     
     while True:
         print("")
@@ -20,7 +13,6 @@ def menu(menu: str, juegos: list, tipoJugador: list, id: int, registros: list):
         if opcion == "1":
             print(crearTitulo("REGISTRAR PUNTAJES"))
             registros = registrarPuntaje(id, juegos,tipoJugador, registros)
-            print(registros) #TODO: BORRAR
         elif opcion == "2":
             print(crearTitulo("LISTAR TODOS LOS PUNTAJES"))
             tablaPuntajes = listarPuntajes(registros, juegos)
@@ -96,7 +88,6 @@ def seleccionarJuegos(juegos: list) -> list:
     contador = 1
     seleccionMenu = list(juegos)
     seleccionJuegos = []
-    print(seleccionMenu) #TODO: BORRAR
     
     maxJuegos = cantidadJuegos(juegos)
     
